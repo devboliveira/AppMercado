@@ -28,6 +28,8 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.devboliveira.appMobileGestao"
@@ -49,6 +51,12 @@
       "eas": {
         "projectId": "d94d2b47-7e11-40a8-a1e6-0539cdb2a6de"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d94d2b47-7e11-40a8-a1e6-0539cdb2a6de"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

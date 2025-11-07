@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         padding: 10,
+        gap: 10,
     },
 
     button: {
@@ -71,6 +72,7 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "row",
+        paddingLeft: 10,
     },
 
     buttonScanner: {
@@ -107,8 +109,9 @@ export const styles = StyleSheet.create({
 
     modalContent2: {
         backgroundColor: "#fff",
-        padding: 20,
+        padding: 10,
         borderRadius: 10,
+        gap: 10,
         width: "80%",
         alignItems: "stretch",
     },
@@ -142,7 +145,6 @@ export const styles = StyleSheet.create({
         color: themes.colors.white,
         backgroundColor: themes.colors.primary,
         width: '95%',
-        height: 40,
         padding: 2,
         borderRadius: 8,
         flexDirection: 'row',
@@ -156,4 +158,50 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold'
     },
+
+    modalTitulo: {
+        fontWeight: "bold",
+        fontSize: 16,
+        marginBottom: 10,
+        textAlign: "center",
+    },
+    inputQuantidade: {
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 8,
+        textAlign: "center",
+        padding: 8,
+        fontSize: 16,
+        marginBottom: 15,
+    },
+    modalBotoes: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginTop: 10,
+    },
+    modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 20,
+  },
+
+  opitionCancelButton: {
+        color: themes.colors.white,
+        padding: 4,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        flexDirection: 'row',
+        gap: 5,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    opitionCancelText: {
+        fontSize: 18,
+        textAlign: 'center',
+        color: 'red',
+        fontWeight: 'semibold'
+    },
+  
 });

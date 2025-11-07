@@ -298,7 +298,7 @@ export default function Balanco() {
           }}
         >
           <Image
-            source={require("../../assets/balanco.png")}
+            source={require("../../assets/icoBalanco.png")}
             style={{ width: 100, height: 100, resizeMode: "contain" }}
           />
 
@@ -359,7 +359,7 @@ export default function Balanco() {
         <View style={[styles.boxInput, { width: 100 }]}>
 
           <TextInput
-            style={[styles.input, { fontSize: 20, textAlign: 'center' }]}
+            style={[styles.input, { fontSize: 16, textAlign: 'center' }]}
             keyboardType="numeric"
             returnKeyType='done'
             value={qtd}
@@ -421,17 +421,23 @@ export default function Balanco() {
               Qual local de realização da contagem?
             </Text>
 
-            <Button title="DEPOSITO" onPress={() => {
-              setTipoBalanco('DEPOSITO');
-              setModalOptionVisible(false)
-            }} />
+            <Pressable
+              style={styles.opitionButton}
+              onPress={() => {setTipoBalanco('DEPOSITO');
+              setModalOptionVisible(false)}}
+            >
+              <Text style={{ color: themes.colors.white, fontSize: 16, fontWeight: 'bold' }}>DEPOSITO</Text>
+            </Pressable>
 
             <View style={styles.separator} />
 
-            <Button title="GONDOLAS" onPress={() => {
-              setTipoBalanco('GONDOLA');
-              setModalOptionVisible(false)
-            }} />
+            <Pressable
+              style={styles.opitionButton}
+              onPress={() => {setTipoBalanco('GONDOLA');
+              setModalOptionVisible(false)}}
+            >
+              <Text style={{ color: themes.colors.white, fontSize: 16, fontWeight: 'bold' }}>GÔNDOLAS</Text>
+            </Pressable>
 
           </View>
         </View>

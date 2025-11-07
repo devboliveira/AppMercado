@@ -7,9 +7,14 @@ import { themes } from "../global/themes";
 import ListBalanco from "../pages/listBalanco";
 import Balanco from "../pages/balanco";
 import { StatusBar } from 'expo-status-bar';
+import Etiqueta from "../pages/etiqueta";
+import SelecaoProduto from "../pages/selecaoProdutos";
+import type { RootStackParamList } from "../global/types";
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 export default function Routes() {
-    const Stack = createStackNavigator()
+    //const Stack = createStackNavigator()
     return (
         <Stack.Navigator
             initialRouteName="Login"
@@ -61,6 +66,22 @@ export default function Routes() {
                 component={Balanco}
                 options={{
                     title: 'REALIZAR CONTAGEM',
+                }}
+            />
+
+            <Stack.Screen
+                name="Etiqueta"
+                component={Etiqueta}
+                options={{
+                    title: 'ETIQUETA',
+                }}
+            />
+
+            <Stack.Screen
+                name="SelecaoProduto"
+                component={SelecaoProduto}
+                options={{
+                    title: 'SELECIONAR PRODUTO',
                 }}
             />
 

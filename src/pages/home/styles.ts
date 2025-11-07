@@ -8,6 +8,7 @@ export const styles = StyleSheet.create({
         backgroundColor: themes.colors.white,
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 20,
     },
 
     button: {
@@ -32,5 +33,6 @@ export const styles = StyleSheet.create({
         color: themes.colors.secondary,
         fontWeight: "bold",
         fontSize: 20,
+        textAlign: 'center',
     }
 });

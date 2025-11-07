@@ -72,6 +72,8 @@ export default function Login() {
                 style={styles.input} 
                 placeholder="Usuário"
                 placeholderTextColor={themes.colors.darkGray}
+                autoCapitalize='none'
+                autoCorrect={false}
                 value={user}
                 onChangeText={(e) => setUser(e)}/>
             <MaterialIcons 
