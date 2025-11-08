@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -16,6 +16,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.devboliveira.appMobileGestao",
       "infoPlist": {
+        "NSCameraUsageDescription": "Este app precisa acessar a câmera para ler códigos de barras.",
+        "NSMicrophoneUsageDescription": "Este app usa o microfone apenas para escanear com a câmera.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
