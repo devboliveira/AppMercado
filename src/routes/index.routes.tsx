@@ -10,10 +10,10 @@ import { StatusBar } from 'expo-status-bar';
 import Etiqueta from "../pages/etiqueta";
 import SelecaoProduto from "../pages/selecaoProdutos";
 import type { RootStackParamList } from "../global/types";
-
-const Stack = createStackNavigator<RootStackParamList>();
+import Users from "../pages/users";
 
 export default function Routes() {
+    const Stack = createStackNavigator<RootStackParamList>();
     //const Stack = createStackNavigator()
     return (
         <Stack.Navigator
@@ -74,6 +74,14 @@ export default function Routes() {
                 component={Etiqueta}
                 options={{
                     title: 'ETIQUETA',
+                }}
+            />
+
+            <Stack.Screen
+                name="Usuarios"
+                component={Users}
+                options={{
+                    title: 'USUÁRIOS',
                 }}
             />
 

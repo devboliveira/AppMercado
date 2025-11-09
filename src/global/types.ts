@@ -23,6 +23,7 @@ export type RootStackParamList = {
   ListBalanco: undefined;
   Balanco: undefined;
   Etiqueta: undefined;
+  Usuarios: undefined;
   SelecaoProduto: { onSelect?: (produto: Produto) => void };
 };
 

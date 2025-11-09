@@ -27,7 +27,8 @@ export default function Login() {
                 .from("tbUsuarios")
                 .select("*")
                 .eq("usuario", user)
-                .eq("senha", password) 
+                .eq("senha", password)
+                .eq("status", "ATIVO") 
                 .single();
 
             if (error || !data) {
@@ -92,7 +93,8 @@ export default function Login() {
                 placeholderTextColor={themes.colors.darkGray}
                 secureTextEntry
                 value={password}
-                onChangeText={(e) => setPassword(e)}/>
+                onChangeText={(e) => setPassword(e)}
+                onSubmitEditing={()=>getLogin()}/>
             <MaterialIcons 
                 name='lock' 
                 size={20} 
@@ -105,9 +107,8 @@ export default function Login() {
       <View style={styles.bottomView}>
         <TouchableOpacity style={styles.button} onPress={()=>getLogin()}>
             {
-                loading ? <ActivityIndicator color={themes.colors.white} /> : null
+                loading ? <ActivityIndicator color={themes.colors.white} /> : <Text style={styles.textButton}>ENTRAR</Text>
             }
-            <Text style={styles.textButton}>ENTRAR</Text>
         </TouchableOpacity>
       </View>
 
