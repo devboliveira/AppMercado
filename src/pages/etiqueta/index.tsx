@@ -299,10 +299,11 @@ export default function Etiqueta() {
             borderBottomWidth: 1,
             borderBottomColor: themes.colors.lightGray,
             paddingHorizontal: 10,
+            borderRadius: 5,
             width: '100%',
             flexDirection: 'row',
             backgroundColor: 
-              highlightedId === item.id ? '' : 'transparent', // destaque amarelo claro
+              highlightedId === item.id ? 'lightskyblue' : 'transparent', // destaque amarelo claro
           }}>
             <View
               style={{

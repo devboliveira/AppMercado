@@ -81,6 +81,11 @@ export default function Users() {
             return;
         }
 
+        if (users.some(user => user.usuario === formData.usuario)) {
+            Alert.alert("Erro", "Já existe um usuário com esse username.");
+            return;
+        }
+
         try {
             if (selectedUser?.id) {
                 const { error } = await supabase
@@ -107,7 +112,6 @@ export default function Users() {
                     return;
                 }
 
-
                 const { error } = await supabase
                     .from("tbUsuarios")
                     .insert([
@@ -128,12 +132,12 @@ export default function Users() {
             setEditFormMode(false);
             setSelectedUser(null);
             setModalVisible(false);
+
         } catch (err) {
             console.error(err);
             Alert.alert("Erro", "Não foi possível salvar o usuário.");
         }
     }
-
 
     function handlerSearch() {
         setPesquisa(pesquisa);
@@ -273,6 +277,7 @@ export default function Users() {
             >
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "padding"}
+                    keyboardVerticalOffset={Platform.OS === "ios" ? -30 : 0}
                     style={{ flex: 1 }}
 
                 >
@@ -309,6 +314,7 @@ export default function Users() {
                                             editable={editFormMode}
                                             placeholder=""
                                             autoCapitalize='words'
+                                            autoCorrect={false}
                                             placeholderTextColor={themes.colors.darkGray}
                                             keyboardType='default'
                                             value={formData.nome}

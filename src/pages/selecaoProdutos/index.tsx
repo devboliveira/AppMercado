@@ -7,6 +7,7 @@ import type { RootStackParamList, Produto } from "../../global/types";
 import type { StackScreenProps } from "@react-navigation/stack";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { styles } from "./styles";
+import BarcodeScannerModal from "../scanCode";
 
 type Props = StackScreenProps<RootStackParamList, "SelecaoProduto">;
 
@@ -16,27 +17,53 @@ export default function SelecaoProduto({ route, navigation }: Props) {
     const [pesquisa, setPesquisa] = useState("");
     const [loading, setLoading] = useState(false);
     const [scannerVisible, setScannerVisible] = useState(false);
+    const [codigo, setCodigo] = useState<string>("");
 
     useEffect(() => {
         buscarProdutos();
     }, []);
 
+    function handleScanned (data : string){
+        buscarProdutos(data)
+    }
+
     async function buscarProdutos(filtro = "") {
         setLoading(true);
         try {
-            let query = supabase.from("tbProdutos").select("CODBAR, DESCRICAO, PRVENDA").order('DESCRICAO', {ascending: true}).limit(50);
-            if (filtro) query = query.ilike("DESCRICAO", `%${filtro}%`);
+            let query = supabase
+                .from("tbProdutos")
+                .select("CODBAR, DESCRICAO, PRVENDA")
+                .order("DESCRICAO", { ascending: true })
+                .limit(50);
+
+            if (filtro) {
+                // Verifica se o filtro é numérico (provável busca por código de barras)
+                const isNumero = /^\d+$/.test(filtro);
+
+                if (isNumero) {
+                    // Busca exata se for só números (melhor desempenho)
+                    //query = query.eq("CODBAR", filtro);
+                    query = query.or(`CODBAR.eq.${filtro},DESCRICAO.ilike.%${filtro}%`);
+                } else {
+                    // Busca textual
+                    query = query.ilike("DESCRICAO", `%${filtro}%`);
+                }
+            }
+
             const { data, error } = await query;
+
             if (error) {
                 console.error("Erro buscarProdutos:", error);
                 setProdutos([]);
                 return;
             }
+
             setProdutos((data as Produto[]) || []);
         } finally {
             setLoading(false);
         }
     }
+
 
     function selecionarProduto(item: Produto) {
         if (onSelect && typeof onSelect === "function") {
@@ -78,7 +105,6 @@ export default function SelecaoProduto({ route, navigation }: Props) {
                     </TouchableOpacity>
                 </View>
             </View>
-
             {loading ? (
                 <ActivityIndicator size="large" color={themes.colors.primary} />
             ) : (
@@ -97,6 +123,11 @@ export default function SelecaoProduto({ route, navigation }: Props) {
                     )}
                 />
             )}
+            <BarcodeScannerModal
+                visible={scannerVisible}
+                onClose={() => setScannerVisible(false)}
+                onScanned={handleScanned}
+            />
         </View>
     );
 }
