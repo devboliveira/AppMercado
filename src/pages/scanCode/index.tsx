@@ -22,6 +22,7 @@ const BarcodeScannerModal: React.FC<Props> = ({ visible, onClose, onScanned }) =
   const scannedRef = useRef(false);
 
   useEffect(() => {
+    let mounted = true;
     // Solicita permissão quando o modal for aberto 
     if (visible) {
       if (Platform.OS === "web") {
@@ -65,20 +66,27 @@ const BarcodeScannerModal: React.FC<Props> = ({ visible, onClose, onScanned }) =
           try {
             setRequesting(true);
             const { status } = await Camera.requestCameraPermissionsAsync();
+            if (!mounted) return;
+
+            if (status === "granted") {
+              // Espera um curto tempo para evitar inicialização prematura no iOS
+              await new Promise((r) => setTimeout(r, 300));
+            }
+
             setHasPermission(status === "granted");
-          }
-          catch (err) {
-            setHasPermission(false);
-          }
-          finally {
-            setRequesting(false);
             setScanned(false);
             scannedRef.current = false;
-            // reseta o estado de leitura ao abrir 
+          } catch {
+            setHasPermission(false);
+          } finally {
+            if (mounted) setRequesting(false);
           }
         })();
       }
     }
+    return () => {
+      mounted = false;
+    };
   }, [visible]);
 
   function handleBarCodeScanned({ data }: { type: string; data: string }) {
@@ -123,6 +131,7 @@ const BarcodeScannerModal: React.FC<Props> = ({ visible, onClose, onScanned }) =
         ) : (
           <View style={styles.flexFill}>
             <CameraView
+              key={visible ? "camera-active" : "camera-inactive"}
               style={StyleSheet.absoluteFillObject}
               barcodeScannerSettings={
                 { barcodeTypes: ['qr', 'ean13', 'ean8', 'code128', 'upc_e', 'upc_a'], }
