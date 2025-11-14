@@ -27,6 +27,16 @@ export type RootStackParamList = {
   SelecaoProduto: { onSelect?: (produto: Produto) => void };
 };
 
+export interface ItemBalanco {
+  id: number;
+  codbar: string;
+  quantidade: number;
+  balanco: number;
+  descricao: string;
+  tipo: string;
+  usuario_id: number;
+}
+
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList {}

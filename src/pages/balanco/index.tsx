@@ -155,6 +155,9 @@ export default function Balanco() {
 
   async function inserirBalanco(quantidade: number) {
     try {
+
+      setLoading(true);
+
       if (!produto) {
         return Alert.alert("Atenção", "Nenhum produto selecionado");
       }
@@ -182,6 +185,8 @@ export default function Balanco() {
       console.error(err);
       Alert.alert("Erro", "Falha inesperada ao inserir balanço");
       return null;
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -367,7 +372,10 @@ export default function Balanco() {
           />
         </View>
 
-        <TouchableOpacity style={[styles.buttonScanner, { width: 200, backgroundColor: themes.colors.lightGray }]} onPress={() => inserirBalanco(Number(qtd))}>
+        <TouchableOpacity style={[styles.buttonScanner, { width: 200, backgroundColor: themes.colors.lightGray }]} onPress={() => inserirBalanco(Number(qtd))} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator size="small" color={themes.colors.primary} />
+          ) : (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
             <MaterialIcons
               name='add'
@@ -375,7 +383,7 @@ export default function Balanco() {
               color={'green'}
             />
             <Text style={[styles.textButton, { color: 'green' }]}>ADICIONAR</Text>
-          </View>
+          </View>)}
         </TouchableOpacity>
 
       </View>
