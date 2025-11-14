@@ -337,6 +337,7 @@ export default function Etiqueta() {
                   borderColor: themes.colors.lightGray,
                   borderRadius: 5,
                   textAlign: 'center',
+                  textAlignVertical: 'center',
                   width: 50,
                   height: 30,
                 }}
