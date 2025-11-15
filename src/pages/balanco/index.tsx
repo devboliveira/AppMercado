@@ -100,8 +100,14 @@ export default function Balanco() {
         Alert.alert("Erro", "Produto não encontrado");
         setProduto(null);
       } else {
-        await verificarBalanco(codNumber);
-        setProduto(data);
+        
+        if(data.associado === 1){
+          Alert.alert("Atenção", "Produto associado, verifique o item principal!");
+          setProduto(null);
+        } else{
+          await verificarBalanco(codNumber);
+          setProduto(data);
+        }
       }
     } catch (err) {
       console.log(err);

@@ -1,6 +1,7 @@
 export interface Produto {
   CODBAR: number;
   DESCRICAO: string;
+  associado: number;
 }
 
 export interface ItemBalanco {
