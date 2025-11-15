@@ -153,8 +153,18 @@ export default function Balanco() {
     }
   }
 
-  async function inserirBalanco(quantidade: number) {
+  async function inserirBalanco(value: number) {
     try {
+
+      // 1. Pega a string do input. Se estiver vazia ou nula, considera "0".
+    const valorString = value.toString();
+
+    // 2. Substitui a vírgula (,) por ponto (.)
+    // Isso padroniza o formato decimal para o JavaScript entender.
+    const valorComPonto = valorString.replace(',', '.');
+
+    // 3. Converte a string (já com ponto) para um número de ponto flutuante (float)
+    const quantidade = parseFloat(valorComPonto);
 
       setLoading(true);
 
