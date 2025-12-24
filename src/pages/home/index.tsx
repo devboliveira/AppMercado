@@ -48,6 +48,15 @@ export default function Home() {
         <Text style={styles.textButton}>BALANÇOS</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ListCotacao')}>
+        <Image
+          source={require('../../assets/icoBalanco.png')}
+          style={{ width: 100, height: 100, marginBottom: 10 }}
+          resizeMode="contain"
+        />
+        <Text style={styles.textButton}>COTAÇÕES</Text>
+      </TouchableOpacity>
+
       {
         userNivel >= 8 ?
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Usuarios')}>

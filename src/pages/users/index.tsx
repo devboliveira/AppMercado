@@ -273,14 +273,12 @@ export default function Users() {
                 transparent={true}
                 animationType="slide"
                 visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
+                onRequestClose={() => setModalVisible(false)}>
+
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "padding"}
                     keyboardVerticalOffset={Platform.OS === "ios" ? -30 : 0}
-                    style={{ flex: 1 }}
-
-                >
+                    style={{ flex: 1 }}>
 
                     <View style={[styles.modalOverlayBottom]}>
                         <View style={styles.modalContentBottom}>

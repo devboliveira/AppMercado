@@ -89,7 +89,7 @@ export const styles = StyleSheet.create({
         paddingBottom: 40,
         borderTopStartRadius: 20,
         borderTopEndRadius: 20,
-        width: "98%",
+        width: "95%",
         alignItems: "center",
     },
 
@@ -134,4 +134,62 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold'
     },
+
+    rowItem: {
+        width: '100%',
+        flexDirection: 'row',
+    },
+
+    listItem: {
+        width: '100%',
+        padding: 15,
+        marginVertical: 5,
+        borderRadius: 8,               
+        shadowColor: "#000",        
+        shadowOffset: {        
+            width: 0,        
+            height: 7,        
+        },        
+        shadowOpacity: 0.41,        
+        shadowRadius: 9.11,        
+        elevation: 14,        
+    },
+
+    optionButton: {
+        backgroundColor: themes.colors.primary,
+        padding: 12,
+        borderRadius: 8,
+        marginTop: 10,
+    },
+
+    modalOverlayCenter: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContentCenter: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "stretch",
+  },
+  buttonScanner: {
+          width: '100%',
+          height: 40,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: themes.colors.primary,
+          borderRadius: 20,
+          shadowColor: "#000",
+          shadowOffset: {
+              width: 0,
+              height: 4,
+          },
+          shadowOpacity: 0.44,
+          shadowRadius: 2,
+  
+          elevation: 8,
+      },
 });

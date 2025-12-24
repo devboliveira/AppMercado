@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User } from '../global/types';
 
-export async function getRegister(key: string): Promise<User | null> {
+export async function getRegister(key: string){
   const stored = await AsyncStorage.getItem(key);
   if (!stored) return null;
   try {
