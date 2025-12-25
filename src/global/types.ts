@@ -26,6 +26,7 @@ export type RootStackParamList = {
   Etiqueta: undefined;
   Usuarios: undefined;
   Cotacao: undefined;
+  DetailCompra: { compraId: number };
   SelecaoProduto: { onSelect?: (produto: Produto) => void };
 };
 
@@ -70,8 +71,16 @@ export interface CotacaoItem {
   cotacao_id: number;
   created_for: number;
   fornecedor_id: number;
+  data_compra?: string;
+  qtd_compra?: number;
+  valor_compra?: number;
+  bonificacao?: boolean;
+  desc_bonificacao?: string;
   produto?: {
     DESCRICAO: string;
+    ESTOQ: number;
+    PRVENDA: number;
+    CUSTO: number;
   }[];
   fornecedor?: {
     fornecedor: string;

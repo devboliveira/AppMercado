@@ -19,6 +19,7 @@ export default function Cotacao() {
     const [cotacaoID, setCotacaoID] = React.useState<number | null>(null);
     const [modalVisible, setModalVisible] = React.useState<boolean>(false);
     const [produtoSelecionado, setProdutoSelecionado] = React.useState<Produto | null>(null);
+    const [descricaoAvulso, setDescricaoAvulso] = React.useState<string>("");
     const [quantidade, setQuantidade] = React.useState<number>(1);
     let timeoutAtualizacao: NodeJS.Timeout | null = null;
     const navigation = useNavigation();
@@ -33,7 +34,7 @@ export default function Cotacao() {
         if (userId && cotacaoID) {
             buscarCotacao();
         }
-    }, [userId , cotacaoID]);
+    }, [userId, cotacaoID]);
 
     async function getAsyncStorage() {
         const user = await getRegister('@user');
@@ -58,7 +59,8 @@ export default function Cotacao() {
                 created_for,
                 cotacao_id,
                 fornecedor_id,
-                produto:tbProdutos!inner(DESCRICAO)
+                produto:tbProdutos(DESCRICAO, ESTOQ, PRVENDA, CUSTO),
+                fornecedor:tbFornecedores(fornecedor)
               `)
             .eq('cotacao_id', cotacaoID)
             .order('id', { ascending: false });
@@ -75,7 +77,7 @@ export default function Cotacao() {
             }));
             setItensCotacao(data);
             setFilterItensCotacao(data);
-            console.log("Itens da cotação buscados:", filterItensCotacao);
+            console.log("Itens da cotação buscados:", data);
         }
     }
 
@@ -91,6 +93,49 @@ export default function Cotacao() {
             );
             setFilterItensCotacao(filteredData);
         }
+    }
+
+    async function excluirItemCotacao(index: number, itemID: number) {
+        Alert.alert(
+            "Remover item",
+            "Deseja realmente remover esta etiqueta?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel",
+                    onPress: () => {
+                        console.log("Remoção de etiqueta cancelada");
+                    },
+                },
+                {
+                    text: "Remover",
+                    style: "destructive",
+                    onPress: async () => {
+                        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                        // Remove visualmente o item
+                        setItensCotacao(prev => prev.filter((_, i) => i !== index));
+                        setFilterItensCotacao(prev => prev.filter((_, i) => i !== index));
+
+                        // Exclui no banco
+                        try {
+                            const { error } = await supabase
+                                .from("tbCotacoes")
+                                .delete()
+                                .eq("id", itemID);
+
+                            if (error) {
+                                console.error("Erro ao excluir o item:", error.message);
+                                Alert.alert("Erro", "Falha ao excluir o item.");
+                            } else {
+                                console.log(`Item ${itemID} excluído com sucesso.`);
+                            }
+                        } catch (err) {
+                            console.error("Erro inesperado ao excluir item:", err);
+                        }
+                    },
+                },
+            ]
+        );
     }
 
     // 🔧 Função auxiliar para atualizar no Supabase
@@ -159,6 +204,40 @@ export default function Cotacao() {
         }
     }
 
+    async function adicionarItemCotacaoAvulso(descricao: string) {
+        if (!descricao || !userId) return;
+
+        try {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from("tbCotacoes")
+                .insert([
+                    {
+                        descricao: descricao,
+                        created_for: userId,
+                        cotacao_id: cotacaoID,
+                    },
+                ])
+                .select();
+            if (error) {
+                console.error("Erro ao adicionar item à cotação:", error.message);
+                Alert.alert("Erro", "Não foi possível adicionar o item.");
+                return;
+            }
+            if (data && data.length > 0) {
+                console.log("Item adicionado à cotação:", data[0]);
+                const novoItem = data[0];
+                setFilterItensCotacao((prev) => [novoItem, ...prev]);
+                setModalVisible(false);
+                setDescricaoAvulso("");
+            }
+        } catch (err) {
+            console.error("Erro ao adicionar item à cotação: ", err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     // Função para rolar até o item existente
     function focarItemExistente(codbarra: number) {
         const index = itensCotacao.findIndex((item) => item.codbar === codbarra);
@@ -198,7 +277,7 @@ export default function Cotacao() {
                 </View>
 
                 <View style={{ width: "15%", flexDirection: "row-reverse" }}>
-                    <TouchableOpacity style={styles.buttonScanner} onPress={() => abrirSelecaoProduto()}>
+                    <TouchableOpacity style={styles.buttonScanner} onPress={() => abrirSelecaoProduto()} onLongPress={() => setModalVisible(true)}>
                         <AntDesign
                             name='plus'
                             size={25}
@@ -213,7 +292,7 @@ export default function Cotacao() {
                 data={filterItensCotacao}
                 keyExtractor={(itensCotacao) => itensCotacao.id.toString()}
                 renderItem={({ item, index }) => (
-                    <View style={{
+                    <TouchableOpacity style={{
                         borderBottomWidth: 1,
                         borderBottomColor: themes.colors.lightGray,
                         paddingHorizontal: 10,
@@ -222,22 +301,78 @@ export default function Cotacao() {
                         flexDirection: 'row',
                         backgroundColor:
                             highlightedId === item.id ? 'lightskyblue' : 'transparent', // destaque amarelo claro
-                    }}>
+}} 
+                    onPress={() => navigation.navigate('DetailCompra', { compraId: item.id })}>
                         <View
                             style={{
                                 paddingVertical: 10,
-                                width: '70%',
+                                width: '85%',
                             }}>
 
                             <Text style={{ fontWeight: 'bold' }}>
                                 {item.descricao}
                             </Text>
-                            <Text style={{ color: '#666' }}>{item.codbar}</Text>
-                            <Text style={{ color: '#666' , fontSize: 12}}>{(item.fornecedor as any)?.fornecedor ?? 'NÃO COMPRADO'}</Text>
+                            <Text style={{ color: '#666' }}>{item.codbar ?? 'ITEM AVULSO (NOVO)'}</Text>
+                            <Text style={{ color: '#666', fontSize: 12 }}>{(item.fornecedor as any)?.fornecedor ?? 'NÃO COMPRADO'}</Text>
                         </View>
-                    </View>
+
+                        {userId === item.created_for && (
+                            <View style={{
+                                width: '15%',
+                                alignItems: 'flex-end',
+                                justifyContent: 'center',
+                            }}>
+
+                                <TouchableOpacity onPress={() => excluirItemCotacao(index, item.id)}>
+                                    <MaterialIcons
+                                        name='delete'
+                                        size={25}
+                                        color={themes.colors.primary}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+
+                    </TouchableOpacity>
                 )}
             />
+
+            <Modal
+                transparent={true}
+                animationType="slide"
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}>
+                <View style={styles.modalOverlayCenter}>
+                    <View style={styles.modalContentCenter}>
+                        <Text style={[styles.modalTitle, { color: themes.colors.primary, marginBottom: 20 }]}>
+                            Adicionar Item Avulso:
+                        </Text>
+
+                        <View style={[styles.boxInput, { width: '100%' }]}>
+                            <TextInput style={[styles.input, { width: '100%' }]}
+                                placeholder="Descricão do Produto"
+                                placeholderTextColor={themes.colors.darkGray}
+                                value={descricaoAvulso}
+                                onChangeText={(text) => setDescricaoAvulso(text)}
+                                keyboardType='default' />
+                        </View>
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20, gap: 10, justifyContent: 'center' }}>
+                            <TouchableOpacity
+                                style={[styles.optionButton, { backgroundColor: 'transparent' }]}
+                                onPress={() => setModalVisible(false)}>
+                                <Text style={[styles.opitionText, { color: 'red' }]}>Cancelar</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.optionButton]}
+                                onPress={() => adicionarItemCotacaoAvulso(descricaoAvulso)}>
+                                <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>Confirmar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
         </View>
     );

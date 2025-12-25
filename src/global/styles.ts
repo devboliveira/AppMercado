@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
     separator: {
         height: 1,
         width: '95%',
-        backgroundColor: '#ccc', 
+        backgroundColor: '#ccc',
         marginVertical: 5,
     },
 
@@ -144,15 +144,15 @@ export const styles = StyleSheet.create({
         width: '100%',
         padding: 15,
         marginVertical: 5,
-        borderRadius: 8,               
-        shadowColor: "#000",        
-        shadowOffset: {        
-            width: 0,        
-            height: 7,        
-        },        
-        shadowOpacity: 0.41,        
-        shadowRadius: 9.11,        
-        elevation: 14,        
+        borderRadius: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 7,
+        },
+        shadowOpacity: 0.41,
+        shadowRadius: 9.11,
+        elevation: 14,
     },
 
     optionButton: {
@@ -163,33 +163,53 @@ export const styles = StyleSheet.create({
     },
 
     modalOverlayCenter: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContentCenter: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%",
-    alignItems: "stretch",
-  },
-  buttonScanner: {
-          width: '100%',
-          height: 40,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: themes.colors.primary,
-          borderRadius: 20,
-          shadowColor: "#000",
-          shadowOffset: {
-              width: 0,
-              height: 4,
-          },
-          shadowOpacity: 0.44,
-          shadowRadius: 2,
-  
-          elevation: 8,
-      },
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.2)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalContentCenter: {
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 10,
+        width: "80%",
+        alignItems: "stretch",
+    },
+    buttonScanner: {
+        width: '100%',
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: themes.colors.primary,
+        borderRadius: 20,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.44,
+        shadowRadius: 2,
+
+        elevation: 8,
+    },
+
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: themes.colors.primary,
+        marginBottom: 20,
+    },
+
+    label: {
+        fontSize: 14,
+        color: themes.colors.darkGray,
+        marginBottom: 5,
+    },
+
+    switchRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+    },
 });

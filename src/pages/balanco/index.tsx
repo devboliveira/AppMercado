@@ -316,8 +316,7 @@ export default function Balanco() {
             alignItems: "center",
             justifyContent: "flex-start",
             width: "100%",
-          }}
-        >
+          }}>
           <Image
             source={require("../../assets/icoBalanco.png")}
             style={{ width: 100, height: 100, resizeMode: "contain" }}

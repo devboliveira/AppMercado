@@ -103,8 +103,8 @@ export default function ListBalanco() {
                 style={[styles.listItem, { backgroundColor: isSelected ? '#9febf5ff' : '#ecececff' }]}
               >
                 <View style={styles.rowItem}>
-                  <Text style={{ fontSize: 16, fontWeight: "500", width: "80%" }}>{item.descricao}</Text>
-                  <View style={{ width: '20%', flexDirection: 'row-reverse' }}>
+                  <Text style={{ fontSize: 16, fontWeight: "500", width: "70%" }}>{item.descricao}</Text>
+                  <View style={{ width: '30%', flexDirection: 'row-reverse' }}>
                     <View style={{ backgroundColor: item.status === 'ATIVO' ? '#4caf50' : '#f44336', padding: 5, borderRadius: 10 }}>
                       <Text style={{ fontSize: 16, fontWeight: "500" }}>{item.status}</Text>
                     </View>

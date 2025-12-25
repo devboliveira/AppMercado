@@ -13,6 +13,7 @@ import type { RootStackParamList } from "../global/types";
 import Users from "../pages/users";
 import ListCotacao from "../pages/listCotacao";
 import Cotacao from "../pages/cotacao";
+import DetailCompra from "../pages/detailCompra";
 
 export default function Routes() {
     const Stack = createStackNavigator<RootStackParamList>();
@@ -108,6 +109,14 @@ export default function Routes() {
                 component={Cotacao}
                 options={{
                     title: 'COTAÇÃO',
+                }}
+            />
+
+            <Stack.Screen
+                name='DetailCompra'
+                component={DetailCompra}
+                options={{
+                    title: 'DETALHES DA COMPRA',
                 }}
             />
 
