@@ -42,10 +42,10 @@ export interface ItemBalanco {
 
 export interface Fornecedor {
   id: number;
-  created_at: string;
+  created_at?: string;
   fornecedor: string;
-  status: string;
-  vendedor: string;
+  status?: string;
+  vendedor?: string;
 }
 
 declare global {

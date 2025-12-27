@@ -45,7 +45,7 @@ export const styles = StyleSheet.create({
 
     separator: {
         height: 1,
-        width: '95%',
+        width: '100%',
         backgroundColor: '#ccc',
         marginVertical: 5,
     },
@@ -197,13 +197,12 @@ export const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: 'bold',
         color: themes.colors.primary,
-        marginBottom: 20,
+        marginBottom: 10,
     },
 
     label: {
         fontSize: 14,
         color: themes.colors.darkGray,
-        marginBottom: 5,
     },
 
     switchRow: {
@@ -211,5 +210,30 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 15,
+    },
+
+    boxInputForm: {
+        width: '100%',
+        height: 40,
+        borderWidth: 1,
+        borderColor: "gray",
+        borderRadius: 8,
+        marginTop: 5,
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 15,
+        backgroundColor: themes.colors.lightGray,
+    },
+
+    inputForm: {
+        height: "100%",
+        width: "95%",
+        borderRadius: 40,
+        borderColor: "transparent",
+        outlineColor: "transparent",
+        outlineOffset: 0,
+        outlineWidth: 0,
+        borderWidth: 0,
+        padding: 10,
     },
 });
