@@ -81,11 +81,6 @@ export default function Users() {
             return;
         }
 
-        if (users.some(user => user.usuario === formData.usuario)) {
-            Alert.alert("Erro", "Já existe um usuário com esse username.");
-            return;
-        }
-
         try {
             if (selectedUser?.id) {
                 const { error } = await supabase
@@ -109,6 +104,11 @@ export default function Users() {
 
                 if (formData.senha != formData.confirmarSenha) {
                     Alert.alert("Campos obrigatórios", "As senhas não coincidem.");
+                    return;
+                }
+
+                if (users.some(user => user.usuario === formData.usuario)) {
+                    Alert.alert("Erro", "Já existe um usuário com esse username.");
                     return;
                 }
 

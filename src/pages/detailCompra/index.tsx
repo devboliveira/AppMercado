@@ -33,6 +33,7 @@ export default function DetailCompra({ route, navigation }: any) {
     const [itemCotacao, setItemCotacao] = React.useState<CotacaoItem | null>(null);
     const [valorCompraText, setValorCompraText] = React.useState('');
     const [valorCompraNumber, setValorCompraNumber] = React.useState<number>(0);
+    const [imagemUri, setImagemUri] = React.useState<string>('');
     const hoje = new Date().toISOString().split('T')[0];
     const formatarValor = (valor: number) => {
         if (!valor) return '';
@@ -100,6 +101,7 @@ export default function DetailCompra({ route, navigation }: any) {
             setTemBonificacao(Boolean(data.bonificacao));
             setDescricaoBonificacao(data.desc_bonificacao ?? '');
             setItemCotacao(data);
+            setImagemUri(`https://f005.backblazeb2.com/file/bcodigital/imagensean/${data.codbar}.png`);
 
         } catch (err) {
             console.error(err);
@@ -185,7 +187,7 @@ export default function DetailCompra({ route, navigation }: any) {
                     width: '100%',
                 }}>
                 <Image
-                    source={require("../../assets/icoBalanco.png")}
+                    source={{uri: imagemUri}}
                     style={{ width: 100, height: 100, resizeMode: "contain" }}
                 />
 

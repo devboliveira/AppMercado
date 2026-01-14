@@ -318,7 +318,8 @@ export default function Cotacao({ route }: any) {
                 </View>
             </View>
 
-            <View style={{ width: '100%', paddingTop: 10, justifyContent: 'flex-start', alignItems: 'flex-start', gap: 5 }}>
+            {option === 'Buy' ? (
+                <View style={{ width: '100%', paddingTop: 10, justifyContent: 'flex-start', alignItems: 'flex-start', gap: 5 }}>
                 <Text style={{ fontSize: 16, fontWeight: 'semibold', paddingHorizontal: 20 }}>Itens na Cotação: {filterItensCotacao.length}</Text>
                 <View style={{ width: '100%', height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 20, gap: 10 }}>
 
@@ -362,8 +363,9 @@ export default function Cotacao({ route }: any) {
                     </TouchableOpacity>
 
                 </View>
-            </View>
-
+            </View>                
+            ) : null}
+            
             <FlatList
                 ref={flatListRef}
                 style={{ width: '100%', paddingLeft: 10, paddingRight: 10 }}
