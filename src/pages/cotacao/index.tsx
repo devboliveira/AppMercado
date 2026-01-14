@@ -10,11 +10,13 @@ import { getRegister, clearRegister } from "../../services/asyncStorageService";
 import { useNavigation } from "@react-navigation/native";
 import { Produto, CotacaoItem } from "../../global/types";
 
-export default function Cotacao() {
+export default function Cotacao({ route }: any) {
     const [itensCotacao, setItensCotacao] = React.useState<CotacaoItem[]>([]);
+    const option = route.params?.option ?? null;
     const [filterItensCotacao, setFilterItensCotacao] = React.useState<CotacaoItem[]>([]);
     const [pesquisa, setPesquisa] = React.useState<string>("");
     const [userId, setUserId] = React.useState<number | null>(null);
+    const [userLevel, setUserLevel] = React.useState<number | null>(null);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [cotacaoID, setCotacaoID] = React.useState<number | null>(null);
     const [modalVisible, setModalVisible] = React.useState<boolean>(false);
@@ -25,6 +27,7 @@ export default function Cotacao() {
     const navigation = useNavigation();
     const flatListRef = React.useRef<FlatList>(null);
     const [highlightedId, setHighlightedId] = React.useState<number | null>(null);
+    const [filtroOptions, setFiltroOptions] = React.useState<string>('all');
 
     React.useEffect(() => {
         getAsyncStorage();
@@ -40,6 +43,7 @@ export default function Cotacao() {
         const user = await getRegister('@user');
         console.log('Usuário carregado do AsyncStorage:', user);
         setUserId(user?.id ?? null);
+        setUserLevel(user?.nivel ?? null);
 
         const cotacao = await getRegister('@selectedCotacao');
         console.log('Cotação carregada do AsyncStorage:', cotacao);
@@ -136,6 +140,27 @@ export default function Cotacao() {
                 },
             ]
         );
+    }
+
+    function filtrarItens(op: string) {
+
+        if (op === 'all') {
+            const filteredData = itensCotacao.filter(item =>
+                item.id > 0);
+            setFilterItensCotacao(filteredData);
+        }
+
+        if (op === 'buy') {
+            const filteredData = itensCotacao.filter(item =>
+                item.fornecedor_id > 0);
+            setFilterItensCotacao(filteredData);
+        }
+
+        if (op === '?') {
+            const filteredData = itensCotacao.filter(item =>
+                item.fornecedor_id === null);
+            setFilterItensCotacao(filteredData);
+        }
     }
 
     // 🔧 Função auxiliar para atualizar no Supabase
@@ -253,6 +278,12 @@ export default function Cotacao() {
         }
     }
 
+    function selectItem(id: number) {
+        if (option === 'Buy') {
+            navigation.navigate('DetailCompra', { compraId: id })
+        }
+    }
+
     return (
         <View style={styles.container}>
             <View style={[styles.searchBarBox, { gap: 10 }]}>
@@ -286,6 +317,53 @@ export default function Cotacao() {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            <View style={{ width: '100%', paddingTop: 10, justifyContent: 'flex-start', alignItems: 'flex-start', gap: 5 }}>
+                <Text style={{ fontSize: 16, fontWeight: 'semibold', paddingHorizontal: 20 }}>Itens na Cotação: {filterItensCotacao.length}</Text>
+                <View style={{ width: '100%', height: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 20, gap: 10 }}>
+
+                    <TouchableOpacity style={{
+                        backgroundColor: filtroOptions === 'all' ? 'green' : 'transparent',
+                        borderWidth: 2,
+                        borderColor: 'green',
+                        height: 40,
+                        width: 90,
+                        borderRadius: 10,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }} onPress={() =>{setFiltroOptions('all'); filtrarItens('all')}}>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold' }}>TODOS</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{
+                        backgroundColor: filtroOptions === 'Buy' ? 'green' : 'transparent',
+                        borderWidth: 2,
+                        borderColor: 'green',
+                        height: 40,
+                        width: 90,
+                        borderRadius: 10,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }} onPress={() =>{setFiltroOptions('Buy'); filtrarItens('buy')}}>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold' }}>COMPROS</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{
+                        backgroundColor: filtroOptions === '?' ? themes.colors.lightGray : 'transparent',
+                        borderWidth: 2,
+                        borderColor: themes.colors.lightGray,
+                        height: 40,
+                        width: 90,
+                        borderRadius: 10,
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }} onPress={() =>{setFiltroOptions('?'); filtrarItens('?')}}>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold' }}>COMPRAR</Text>
+                    </TouchableOpacity>
+
+                </View>
+            </View>
+
             <FlatList
                 ref={flatListRef}
                 style={{ width: '100%', paddingLeft: 10, paddingRight: 10 }}
@@ -301,8 +379,8 @@ export default function Cotacao() {
                         flexDirection: 'row',
                         backgroundColor:
                             highlightedId === item.id ? 'lightskyblue' : 'transparent', // destaque amarelo claro
-}} 
-                    onPress={() => navigation.navigate('DetailCompra', { compraId: item.id })}>
+                    }}
+                        onPress={() => selectItem(item.id)}>
                         <View
                             style={{
                                 paddingVertical: 10,
@@ -316,10 +394,12 @@ export default function Cotacao() {
                             <Text style={{ color: '#666', fontSize: 12 }}>{(item.fornecedor as any)?.fornecedor ?? 'NÃO COMPRADO'}</Text>
                         </View>
 
-                        {userId === item.created_for && (
+                        {(option === 'Buy' || userId === item.created_for) && (
                             <View style={{
+                                flexDirection: 'row',
+                                gap: 15,
                                 width: '15%',
-                                alignItems: 'flex-end',
+                                alignItems: 'center',
                                 justifyContent: 'center',
                             }}>
 
@@ -330,6 +410,11 @@ export default function Cotacao() {
                                         color={themes.colors.primary}
                                     />
                                 </TouchableOpacity>
+                                <MaterialIcons
+                                    name='circle'
+                                    size={25}
+                                    color={item?.fornecedor_id === null ? themes.colors.lightGray : 'green'}
+                                />
                             </View>
                         )}
 

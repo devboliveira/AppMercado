@@ -24,6 +24,7 @@ export default function ListBalanco() {
   const [modalVisible, setModalVisible] = useState(false);
   const [userLevel, setUserLevel] = useState<number | null>(null);
   const navigation = useNavigation<NavigationProp<any>>();
+  const [selectedItem, setSelectedItem] = useState<Balanco | null>(null);
 
   async function loadUser() {
     const stored = await AsyncStorage.getItem("@user");
@@ -64,10 +65,11 @@ export default function ListBalanco() {
     loadUser();
   }, []);
 
-  function handleSelect(id: number) {
-    setSelectedId(id);
+  function handleSelect(id: Balanco) {
+    setSelectedId(id?.id);
     setModalVisible(true);
-    console.log("Selecionado:", id);
+    setSelectedItem(id);
+    console.log("Selecionado:", id?.id);
   }
 
   function closeModal() {
@@ -77,13 +79,18 @@ export default function ListBalanco() {
 
   async function handleOption(option: string) {
 
+    if(selectedItem?.status === 'FINALIZADO'){
+        Alert.alert("Atenção", "Este balanço está finalizado e não pode ser editado.");
+        return;
+    }
+
     if (option === "Balanco") {
       //Salvar selectedID no AsyncStorage
       await AsyncStorage.setItem("@selectedBalanco", JSON.stringify(selectedId));
       navigation.navigate("Balanco");
     }
-
     closeModal();
+
   }
 
   return (
@@ -99,7 +106,7 @@ export default function ListBalanco() {
             const isSelected = selectedId === item.id;
             return (
               <TouchableOpacity
-                onPress={() => handleSelect(item.id)}
+                onPress={() => handleSelect(item)}
                 style={[styles.listItem, { backgroundColor: isSelected ? '#9febf5ff' : '#ecececff' }]}
               >
                 <View style={styles.rowItem}>

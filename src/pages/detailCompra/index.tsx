@@ -9,21 +9,22 @@ import {
     ScrollView,
     Image,
     Switch,
+    Alert,
 } from 'react-native';
 import { styles } from "../../global/styles";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { themes } from "../../global/themes";
 import { supabase } from "../../services/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import BarcodeScannerModal from "../scanCode";
 import { Produto, CotacaoItem, Fornecedor } from "../../global/types";
 import { Dropdown } from 'react-native-element-dropdown';
 
 
-export default function DetailCompra({ route }: any) {
+export default function DetailCompra({ route, navigation }: any) {
     const [fornecedores, setFornecedores] = React.useState<Fornecedor[]>([]);
     const [itemID, setItemID] = React.useState<number | null>(null);
-    const { compraId } = route.params.compraId;
+    const { compraId } = route.params;
+    const compraID = route.params?.compraId;
     const [fornecedor, setFornecedor] = React.useState<number>(0);
     const [qtdCompra, setQtdCompra] = React.useState('');
     const [valorCompra, setValorCompra] = React.useState('');
@@ -32,6 +33,7 @@ export default function DetailCompra({ route }: any) {
     const [itemCotacao, setItemCotacao] = React.useState<CotacaoItem | null>(null);
     const [valorCompraText, setValorCompraText] = React.useState('');
     const [valorCompraNumber, setValorCompraNumber] = React.useState<number>(0);
+    const hoje = new Date().toISOString().split('T')[0];
     const formatarValor = (valor: number) => {
         if (!valor) return '';
         const valorFormatado = Number(valor);
@@ -62,38 +64,48 @@ export default function DetailCompra({ route }: any) {
             const { data, error } = await supabase
                 .from('tbCotacoes')
                 .select(`
-                            id,
-                            codbar,
-                            descricao,
-                            created_for,
-                            cotacao_id,
-                            fornecedor_id,
-                            data_compra,
-                            qtd_compra,
-                            valor_compra,
-                            bonificacao,
-                            desc_bonificacao,
-                            produto:tbProdutos(DESCRICAO, ESTOQ, PRVENDA, CUSTO),
-                            fornecedor:tbFornecedores(fornecedor)
-                          `)
-                .eq('id', id);
-
+                        id,
+                        codbar,
+                        descricao,
+                        fornecedor_id,
+                        created_for, cotacao_id,
+                        qtd_compra,
+                        valor_compra,
+                        bonificacao,
+                        desc_bonificacao,
+                        produto:tbProdutos(DESCRICAO, ESTOQ, PRVENDA, CUSTO)
+                    `)
+                .eq('id', id)
+                .single();
 
             if (error) {
-                console.error("Erro ao carregar detalhes da compra:", error.message);
-            } else if (data && data.length > 0) {
-                const item = data[0];
-                setFornecedor((item.fornecedor as any)?.fornecedor);
-                setQtdCompra(item.qtd_compra);
-                setValorCompra(item.valor_compra);
-                setTemBonificacao(item.bonificacao);
-                setDescricaoBonificacao(item.desc_bonificacao);
-                setItemCotacao(item);
+                console.error(error);
+                return;
             }
+
+            setFornecedor(data.fornecedor_id);
+            setQtdCompra(
+                data.qtd_compra !== null && data.qtd_compra !== undefined
+                    ? String(data.qtd_compra)
+                    : ''
+            );
+
+            setValorCompraNumber(Number(data.valor_compra));
+            setValorCompraText(
+                Number(data.valor_compra).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                })
+            );
+            setTemBonificacao(Boolean(data.bonificacao));
+            setDescricaoBonificacao(data.desc_bonificacao ?? '');
+            setItemCotacao(data);
+
         } catch (err) {
-            console.error("Erro inesperado ao carregar detalhes da compra:", err);
+            console.error(err);
         }
     }
+
 
     React.useEffect(() => {
         setItemID(route.params.compraId);
@@ -101,13 +113,14 @@ export default function DetailCompra({ route }: any) {
     }, []);
 
     React.useEffect(() => {
-        console.log("Carregando detalhes da compra para ID:", itemID);
-        if (itemID !== null) {
-            loadCompraDetails(itemID);
-            loadFornecedores();
-        }
+        loadFornecedores();
 
-    }, [itemID]);
+        if (compraID) {
+            loadCompraDetails(compraID);
+            setItemID(compraID);
+        }
+    }, [compraID]);
+
 
     function formatMoneyBR(value: string): string {
         // Remove tudo que não for número
@@ -134,6 +147,32 @@ export default function DetailCompra({ route }: any) {
         setValorCompraNumber(numeric);
     }
 
+    async function salvarCompra() {
+        if (!fornecedor || parseInt(qtdCompra) < 1 || valorCompraNumber <= 0) {
+            Alert.alert("Erro", "Por favor, preencha todos os campos obrigatórios corretamente.");
+            return;
+        }
+        try {
+            const { data, error } = await supabase
+                .from('tbCotacoes')
+                .update({
+                    fornecedor_id: fornecedor,
+                    qtd_compra: qtdCompra,
+                    valor_compra: valorCompraNumber,
+                    bonificacao: temBonificacao,
+                    desc_bonificacao: descricaoBonificacao,
+                    data_compra: hoje,
+                })
+                .eq('id', itemID);
+                navigation.goBack();
+
+            console.log("Dados atualizados");
+        } catch (err) {
+
+            Alert.alert("Erro", "Ocorreu um erro ao salvar a compra.");
+            console.error("Erro ao salvar compra:", err);
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -157,6 +196,7 @@ export default function DetailCompra({ route }: any) {
                         justifyContent: "center",
                         height: 140,
                     }}>
+
                     <Text
                         style={{
                             fontSize: 20,
@@ -207,7 +247,7 @@ export default function DetailCompra({ route }: any) {
 
                         {/* Fornecedor */}
                         <View>
-                            <Text style={styles.label}>Fornecedor</Text>
+                            <Text style={styles.label}>* Fornecedor</Text>
                             <View style={[styles.boxInputForm, { width: '100%' }]}>
                                 <Dropdown
                                     data={fornecedores}
@@ -228,7 +268,7 @@ export default function DetailCompra({ route }: any) {
 
                         {/* Quantidade */}
                         <View>
-                            <Text style={styles.label}>Quantidade comprada</Text>
+                            <Text style={styles.label}>* Quantidade comprada</Text>
                             <View style={[styles.boxInputForm, { width: '100%' }]}>
                                 <TextInput
                                     style={styles.inputForm}
@@ -242,7 +282,7 @@ export default function DetailCompra({ route }: any) {
 
                         {/* Valor */}
                         <View>
-                            <Text style={styles.label}>Valor de compra</Text>
+                            <Text style={styles.label}>* Valor de compra</Text>
                             <View style={[styles.boxInputForm, { width: '100%' }]}>
                                 <TextInput
                                     style={styles.inputForm}
@@ -282,7 +322,7 @@ export default function DetailCompra({ route }: any) {
                         )}
 
                         {/* Botão */}
-                        <TouchableOpacity style={[styles.optionButton, { alignItems: 'center', justifyContent: 'center', height: 50, borderRadius: 40, padding: 0, marginTop: 0 }]}>
+                        <TouchableOpacity onPress={salvarCompra} style={[styles.optionButton, { alignItems: 'center', justifyContent: 'center', height: 50, borderRadius: 40, padding: 0, marginTop: 0 }]}>
                             <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>Salvar Compra</Text>
                         </TouchableOpacity>
                     </View>

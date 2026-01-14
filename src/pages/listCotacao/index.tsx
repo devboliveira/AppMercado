@@ -90,10 +90,20 @@ export default function ListCotacao() {
 
     async function handleOption(option: string) {
 
+        if(selectedCotacao?.status === 'FINALIZADO'){
+            Alert.alert("Atenção", "Esta cotação está finalizada e não pode ser editada.");
+            return;
+        }
+
         if (option === "Balanco") {
             //Salvar selectedID no AsyncStorage
             await AsyncStorage.setItem("@selectedCotacao", JSON.stringify(selectedCotacao?.id));
-            navigation.navigate('Cotacao', { cotacaoID: selectedCotacao?.id });
+            navigation.navigate('Cotacao', { cotacaoID: selectedCotacao?.id, option: 'Balanco' });
+        }
+        else if (option === "Buy") {
+            //Salvar selectedID no AsyncStorage
+            await AsyncStorage.setItem("@selectedCotacao", JSON.stringify(selectedCotacao?.id));
+            navigation.navigate('Cotacao', { cotacaoID: selectedCotacao?.id, option: 'Buy' });
         }
         closeModal();
     }
@@ -152,7 +162,7 @@ export default function ListCotacao() {
                         {userLevel !== null && userLevel >= 6 && (
                             <Pressable
                                 style={styles.optionButton}
-                            //onPress={() => handleOption("Excluir")}
+                                onPress={() => handleOption("Buy")}
                             >
                                 <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>Realizar Cotação</Text>
                             </Pressable>)}

@@ -6,9 +6,6 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: themes.colors.white,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 20,
     },
 
     button: {
