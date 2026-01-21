@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, FlatList, StyleSheet, Modal, Pressable } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, FlatList, StyleSheet, Modal, Pressable, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import { styles } from "../../global/styles";
 import { supabase } from "../../services/supabase";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { themes } from "../../global/themes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useNavigation, NavigationProp, useFocusEffect } from "@react-navigation/native";
 
 type Cotacao = {
     id: number;
@@ -24,8 +24,11 @@ export default function ListCotacao() {
     const [loading, setLoading] = useState(false);
     const [selectedCotacao, setSelectedCotacao] = useState<Cotacao | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [editFormMode, setEditFormMode] = useState(false);
+    const [modalFormVisible, setModalFormVisible] = useState(false);
     const [userLevel, setUserLevel] = useState<number | null>(null);
     const navigation = useNavigation<NavigationProp<any>>();
+    const [pesquisa, setPesquisa] = useState("");
 
     const formatarData = (data: string | Date) => {
         if (!data) return '';
@@ -52,7 +55,7 @@ export default function ListCotacao() {
             const { data, error } = await supabase
                 .from("tbListCotacao")
                 .select("*")
-                .order("id", { ascending: true });
+                .order("id", { ascending: false });
 
             if (error) {
                 console.log(error);
@@ -90,12 +93,11 @@ export default function ListCotacao() {
 
     async function handleOption(option: string) {
 
-        if(selectedCotacao?.status === 'FINALIZADO'){
-            Alert.alert("Atenção", "Esta cotação está finalizada e não pode ser editada.");
-            return;
-        }
-
         if (option === "Balanco") {
+            if (selectedCotacao?.status === 'FINALIZADO') {
+                Alert.alert("Atenção", "Esta cotação está finalizada e não pode ser editada.");
+                return;
+            }
             //Salvar selectedID no AsyncStorage
             await AsyncStorage.setItem("@selectedCotacao", JSON.stringify(selectedCotacao?.id));
             navigation.navigate('Cotacao', { cotacaoID: selectedCotacao?.id, option: 'Balanco' });
@@ -105,11 +107,92 @@ export default function ListCotacao() {
             await AsyncStorage.setItem("@selectedCotacao", JSON.stringify(selectedCotacao?.id));
             navigation.navigate('Cotacao', { cotacaoID: selectedCotacao?.id, option: 'Buy' });
         }
+        else if (option === 'Finalizar') {
+            if (selectedCotacao?.status === 'FINALIZADO') {
+                Alert.alert("Atenção", "Esta cotação está cotação já está finalizada.");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from("tbListCotacao")
+                .update([
+                    {
+                        status: "FINALIZADO",
+                        data_finalizacao: new Date()
+                    }
+                ])
+                .eq('id', selectedCotacao?.id);
+
+                Alert.alert("Sucesso", "Cotação finalizada com sucesso.");
+
+            if (error) {
+                console.log(error);
+                Alert.alert("Erro", "Não foi possível finalizar a cotação");
+            }
+        }
         closeModal();
+    }
+
+    async function novaCotacao() {
+        if (cotacoes.filter(c => c.status === 'ATIVO').length >= 1) {
+            Alert.alert("Atenção", "Já existe uma cotação ativa. Finalize-a antes de criar uma nova.");
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from("tbListCotacao")
+            .insert([
+                {
+                    descricao: "COTAÇÃO SEMANAL",
+                    tipo: "COTAÇÃO GERAL",
+                    status: "ATIVO",
+                    online: false
+                }
+            ]);
+
+        if (error) {
+            console.log(error);
+            Alert.alert("Erro", "Não foi possível criar a cotação");
+        }
+
+        loadCotacoes();
     }
 
     return (
         <View style={styles.container}>
+            <View style={[styles.searchBarBox, { gap: 10 }]}>
+                <View style={styles.boxInput}>
+                    <TextInput
+                        style={styles.input}
+                        returnKeyType='done'
+                        placeholder="Pesquisar usuário..."
+                        placeholderTextColor={themes.colors.darkGray}
+                        keyboardType='default'
+                        value={pesquisa}
+                        onChangeText={(e) => setPesquisa(e)} // busca ao apertar enter
+                    />
+                    <TouchableOpacity>
+                        {loading ? (
+                            <ActivityIndicator size="small" color={themes.colors.primary} />
+                        ) : (
+                            <MaterialIcons name="search" size={20} color="gray" />
+                        )}
+                    </TouchableOpacity>
+                </View>
+
+                <View style={{ width: "15%", flexDirection: "row-reverse" }}>
+                    <TouchableOpacity style={styles.buttonSearchBox}
+                        onPress={() => {
+                            novaCotacao();
+                        }}>
+                        <Feather
+                            name='plus'
+                            size={25}
+                            color={themes.colors.secondary}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </View>
             {loading ? (
                 <ActivityIndicator size="large" />
             ) : (
@@ -151,19 +234,58 @@ export default function ListCotacao() {
                             Escolha uma Opção:
                         </Text>
 
-
                         <Pressable
                             style={styles.optionButton}
-                            onPress={() => handleOption("Balanco")}
-                        >
+                            onPress={() => handleOption("Balanco")}>
                             <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>➕ Inserir Itens</Text>
                         </Pressable>
 
                         {userLevel !== null && userLevel >= 6 && (
                             <Pressable
                                 style={styles.optionButton}
-                                onPress={() => handleOption("Buy")}
+                                onPress={() => handleOption("Buy")}>
+                                <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>Realizar Cotação</Text>
+                            </Pressable>)}
+
+                        {userLevel !== null && userLevel >= 6 && (
+                            <Pressable
+                                style={styles.optionButton}
+                                onPress={() => handleOption("Finalizar")}
                             >
+                                <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>Finalizar</Text>
+                            </Pressable>)
+                        }
+
+                        <Pressable
+                            style={[styles.optionButton, { backgroundColor: "#ddd" }]}
+                            onPress={() => closeModal()}>
+                            <Text style={[styles.opitionText, { color: "red", fontWeight: 'bold' }]}>❌ Fechar</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal
+                transparent={true}
+                animationType="slide"
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}>
+                <View style={styles.modalOverlayCenter}>
+                    <View style={styles.modalContentCenter}>
+                        <Text style={[styles.modalTitle, { color: themes.colors.primary }]}>
+                            Escolha uma Opção:
+                        </Text>
+
+                        <Pressable
+                            style={styles.optionButton}
+                            onPress={() => handleOption("Balanco")}>
+                            <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>➕ Inserir Itens</Text>
+                        </Pressable>
+
+                        {userLevel !== null && userLevel >= 6 && (
+                            <Pressable
+                                style={styles.optionButton}
+                                onPress={() => handleOption("Buy")}>
                                 <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>Realizar Cotação</Text>
                             </Pressable>)}
 
@@ -172,14 +294,13 @@ export default function ListCotacao() {
                                 style={styles.optionButton}
                             //onPress={() => handleOption("Detalhes")}
                             >
-                                <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>ℹ️ Detalhes</Text>
+                                <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>ℹ️ FINALIZAR</Text>
                             </Pressable>)
                         }
 
                         <Pressable
                             style={[styles.optionButton, { backgroundColor: "#ddd" }]}
-                            onPress={() => closeModal()}
-                        >
+                            onPress={() => closeModal()}>
                             <Text style={[styles.opitionText, { color: "red", fontWeight: 'bold' }]}>❌ Fechar</Text>
                         </Pressable>
                     </View>

@@ -18,10 +18,12 @@ import { supabase } from "../../services/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Produto, CotacaoItem, Fornecedor } from "../../global/types";
 import { Dropdown } from 'react-native-element-dropdown';
+import { FlatList } from "react-native-gesture-handler";
 
 
 export default function DetailCompra({ route, navigation }: any) {
     const [fornecedores, setFornecedores] = React.useState<Fornecedor[]>([]);
+    const [itensCotacao, setItensCotacao] = React.useState<CotacaoItem[]>([]);
     const [itemID, setItemID] = React.useState<number | null>(null);
     const { compraId } = route.params;
     const compraID = route.params?.compraId;
@@ -49,6 +51,7 @@ export default function DetailCompra({ route, navigation }: any) {
             const { data, error } = await supabase
                 .from('tbFornecedores')
                 .select('id, fornecedor')
+                .eq('status', 'ATIVO')
                 .order('fornecedor', { ascending: true });
             if (error) {
                 console.error("Erro ao carregar fornecedores:", error.message);
@@ -102,6 +105,38 @@ export default function DetailCompra({ route, navigation }: any) {
             setDescricaoBonificacao(data.desc_bonificacao ?? '');
             setItemCotacao(data);
             setImagemUri(`https://f005.backblazeb2.com/file/bcodigital/imagensean/${data.codbar}.png`);
+
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function getCompras(codbar: number) {
+        try {
+
+            if (!codbar) return;
+
+            const { data, error } = await supabase
+                .from('tbCotacoes')
+                .select(`
+                        id,
+                        codbar,
+                        descricao,
+                        created_for,
+                        cotacao_id,
+                        fornecedor_id,
+                        produto:tbProdutos(DESCRICAO, ESTOQ, PRVENDA, CUSTO),
+                        fornecedor:tbFornecedores(fornecedor)
+                        `)
+                .eq('codbar', codbar)
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            setItensCotacao(data);
 
         } catch (err) {
             console.error(err);
@@ -166,7 +201,7 @@ export default function DetailCompra({ route, navigation }: any) {
                     data_compra: hoje,
                 })
                 .eq('id', itemID);
-                navigation.goBack();
+            navigation.goBack();
 
             console.log("Dados atualizados");
         } catch (err) {
@@ -178,7 +213,6 @@ export default function DetailCompra({ route, navigation }: any) {
 
     return (
         <View style={styles.container}>
-
             <View
                 style={{
                     flexDirection: "row",
@@ -187,7 +221,7 @@ export default function DetailCompra({ route, navigation }: any) {
                     width: '100%',
                 }}>
                 <Image
-                    source={{uri: imagemUri}}
+                    source={{ uri: imagemUri }}
                     style={{ width: 100, height: 100, resizeMode: "contain" }}
                 />
 
@@ -328,11 +362,8 @@ export default function DetailCompra({ route, navigation }: any) {
                             <Text style={[styles.opitionText, { color: themes.colors.secondary }]}>Salvar Compra</Text>
                         </TouchableOpacity>
                     </View>
-
                 </ScrollView>
-
             </KeyboardAvoidingView>
-
         </View>
     );
 }

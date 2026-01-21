@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import { Text, View, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Alert, LayoutAnimation, Button, Modal, Pressable } from "react-native";
 import { styles } from "../../global/styles";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
@@ -7,7 +7,7 @@ import { supabase } from "../../services/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BarcodeScannerModal from "../scanCode";
 import { getRegister, clearRegister } from "../../services/asyncStorageService";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Produto, CotacaoItem } from "../../global/types";
 
 export default function Cotacao({ route }: any) {
@@ -33,11 +33,19 @@ export default function Cotacao({ route }: any) {
         getAsyncStorage();
     }, []);
 
-    React.useEffect(() => {
-        if (userId && cotacaoID) {
-            buscarCotacao();
-        }
-    }, [userId, cotacaoID]);
+    useFocusEffect(
+        useCallback(() => {
+            // Verifica se temos os IDs necessários antes de buscar
+            if (userId && cotacaoID) {
+                buscarCotacao();
+            }
+
+            // O retorno opcional aqui serve para "limpar" algo quando a tela perde o foco
+            return () => {
+                // Exemplo: console.log('Tela perdeu o foco');
+            };
+        }, [userId, cotacaoID]) // Dependências: se o usuário ou ID da cotação mudar, roda de novo
+    );
 
     async function getAsyncStorage() {
         const user = await getRegister('@user');
